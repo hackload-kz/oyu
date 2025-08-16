@@ -11,6 +11,9 @@ import (
 
 type Service interface {
 	GetEventList(ctx context.Context, query entity.EventListQuery) (response []entity.EventForList, err error)
+
+	BookingCreate(ctx context.Context, data entity.BookingCreate) (bookingID int64, err error)
+	GetSeatsList(ctx context.Context, query entity.SeatsListQuery) (response []entity.SeatForList, err error)
 }
 
 type service struct {

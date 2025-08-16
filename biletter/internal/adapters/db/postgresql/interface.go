@@ -13,6 +13,10 @@ type PostgresStorage interface {
 	GetUserByEmail(ctx context.Context, email string) (data entity.AuthUser, err error)
 
 	GetEventList(ctx context.Context, filters string) (data []entity.EventForList, err error)
+
+	BookingCreate(ctx context.Context, eventID, userID int64) (bookingID int64, err error)
+
+	GetSeatsList(ctx context.Context, query entity.SeatsListQuery) ([]entity.SeatForList, error)
 }
 
 type storage struct {

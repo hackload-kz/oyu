@@ -18,7 +18,7 @@ type pagination struct {
 }
 
 func (p *pagination) Prepare(values url.Values) {
-	limit, err := strconv.Atoi(values.Get("limit"))
+	limit, err := strconv.Atoi(values.Get("pageSize"))
 	if err != nil {
 		limit = 10
 		err = nil
@@ -39,7 +39,7 @@ func (p *pagination) Validate() error {
 	return validation.ValidateStruct(p,
 		validation.Field(
 			&p.Limit,
-			validation.Max(30).Error("Максимально допустимый лимит записей - 30!"),
+			validation.Max(20).Error("Максимально допустимый лимит записей - 20!"),
 		),
 	)
 }

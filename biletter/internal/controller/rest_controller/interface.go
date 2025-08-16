@@ -15,6 +15,8 @@ type DocHandler interface {
 	Register(*httprouter.Router)
 
 	GetEventList(http.ResponseWriter, *http.Request) error
+	BookingCreate(w http.ResponseWriter, r *http.Request) (err error)
+	GetSeatsList(w http.ResponseWriter, r *http.Request) (err error)
 }
 
 type docHandler struct {
@@ -37,15 +39,26 @@ func NewRouterHandler(
 }
 
 const (
-	eventListURL = "/api/events"
+	eventListURL     = "/api/events"
+	bookingCreateURL = "/api/bookings"
+	seatsListURL     = "/api/seats"
 
 	swaggerURL = "/api/v1/integrator/swagger/*any"
 )
 
 func (h *docHandler) Register(router *httprouter.Router) {
-	router.Handler(http.MethodPost, eventListURL, middleware.New(
+	router.Handler(http.MethodGet, eventListURL, middleware.New(
 		middleware.ErrorMiddleware,
 	).Then(h.GetEventList, h.postgresStorage, h.logger, "integrator", "r"))
+
+	router.Handler(http.MethodPost, bookingCreateURL, middleware.New(
+		middleware.ErrorMiddleware,
+		middleware.BasicAuthMiddleware,
+	).Then(h.BookingCreate, h.postgresStorage, h.logger, "integrator", "c"))
+
+	router.Handler(http.MethodGet, seatsListURL, middleware.New(
+		middleware.ErrorMiddleware,
+	).Then(h.GetSeatsList, h.postgresStorage, h.logger, "integrator", "r"))
 
 	router.Handler(http.MethodGet, swaggerURL, httpSwagger.WrapHandler)
 }

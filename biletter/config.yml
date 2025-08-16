@@ -1,0 +1,39 @@
+is_debug: false
+listen:
+  type: port
+  bind_ip: 0.0.0.0
+  port: 8081
+redis:
+  host: 127.0.0.1
+  port: 6379
+storage:
+  host: 185.22.67.9
+  port: 5432
+  database: hackload
+  username: hackload_user
+  password: hackload_password
+#elasticSearch:
+#  addresses: [ "http://192.168.1.104:9200" ]
+#  username: ""
+#  password: ""
+#  apiKey: ""
+#  enableLogging: false
+grpc:
+  bind_ip: 0.0.0.0
+  port: 50060
+  ssl: false
+grpcClient:
+  routerService: "192.168.1.104:50050"
+  docService: "192.168.1.104:50053"
+  storageService: "192.168.1.104:50059"
+  gatewayIntegrationService: "192.168.1.104:50161"
+cors:
+  allowed_origins: ['*']
+  allowed_headers: [Authorization, Content-Type]
+  allowed_methods: [GET, POST, PATCH, PUT, DELETE]
+  exposed_headers: []
+  allow_credentials: true
+  options_passthrough: true
+  debug: false
+mainURI: https://app.onaidocs.kz
+timezone: Asia/Tashkent

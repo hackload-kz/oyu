@@ -1,0 +1,1535 @@
+syntax = "proto3";
+
+package router;
+
+option go_package = "internal/pb/router/";
+
+import "google/protobuf/empty.proto";
+
+
+
+message CorrectResultResponse {
+  repeated Step steps = 1;
+}
+
+message ResultResponse{
+  oneof response {
+    Error error = 1;
+    CorrectResultResponse correctResultResponse = 2;
+  }
+}
+
+message StepSettings {
+  uint32 id = 1;
+  bool by_eds = 2;
+  bool by_company_eds = 10;
+  bool in_series = 3;
+  bool need_confirm = 4;
+  bool wait_delegate = 5;
+  bool can_add_part = 6;
+  bool can_delegate = 7;
+  bool can_decline = 8;
+  uint32 files_access = 9;
+}
+
+message Step {
+  StepSettings settings = 6;
+  string action = 1;
+  uint32 index = 2;
+  bool under_revision = 5;
+  bool is_old = 3;
+  bool is_actual = 7;
+  repeated Participant participants = 4;
+}
+
+message ResultComment {
+  string text = 1;
+  bool has_files = 2;
+  repeated ResultCommentFile files = 3;
+}
+
+message ResultCommentFile {
+  string name = 1;
+  string hash_name = 2;
+}
+
+message Participant {
+  uint32 id = 1;
+  string code = 2;
+  string name = 3;
+  string position = 4;
+  string result = 5;
+  string decision_date = 6;
+  ResultComment decision_comment = 7;
+  ResultComment delegate_comment = 8;
+  string invited = 9;
+  repeated Participant delegates = 10;
+  bool success = 11;
+  bool need_alteration = 12;
+  bool success_set = 13;
+  bool is_actual = 14;
+}
+
+message ResultRequest {
+  repeated uint32 id = 1;
+}
+
+message RouterDetailsRequest {
+  repeated uint32 route_id = 1;
+  bool is_owner = 2;
+}
+
+message File {
+  int32 id = 9;
+  string title = 1;
+  string file_name = 2;
+  string hash_name = 3;
+  string author = 4;
+  string contentLength = 5;
+  string fileExst = 8;
+  string created = 6;
+  string comment = 7;
+}
+
+message CorrectRouterDetailsResponse {
+  message RouterDetails {
+    uint32 index = 1;
+    string action_name = 2;
+    bool is_active = 3;
+    bool success = 4;
+    bool success_enabled = 8;
+    bool confirm = 5;
+    bool confirm_enabled = 9;
+    string confirm_date = 6;
+    bool need_alteration = 7;
+    bool need_alteration_enabled = 10;
+  }
+  message CommentCount {
+    uint32 count = 1;
+    bool need_read = 2;
+  }
+  repeated RouterDetails points = 1;
+  repeated File dec_files = 2;
+  bool notify = 3;
+  bool has_resolution = 5;
+  CommentCount comments_count = 4;
+}
+
+message RouterDetailsResponse{
+  oneof response {
+    Error error = 1;
+    CorrectRouterDetailsResponse correctRouterDetailsResponse = 2;
+  }
+}
+
+message ParticipantsData {
+  int64 index = 1;
+  StageParticipant participant = 2;
+  ParticipantDecision decision = 3;
+  uint32 user_sso_id = 4;
+}
+
+message StageParticipant {
+  repeated uint32 responsible_id = 4;
+  uint32          id = 1;
+  string          card_code = 5;
+  string          code = 2;
+  string          name = 3;
+}
+
+message ParticipantDecision {
+  string date = 1;
+  string comment = 2;
+  string result = 3;
+  bool by_eds = 4;
+  int32 cms_id = 5;
+  bool success = 6;
+}
+
+message CmsIdArrRequest {
+  Context context = 1;
+  repeated int32 route_id = 2;
+}
+
+message CmsIdArr {
+  repeated int32 id_s = 1;
+}
+
+message ITC {
+  uint32 doc_id = 1;
+  string type = 2;
+  string code = 3;
+}
+
+message ICN {
+  uint32 id = 1;
+  string code = 2;
+  string name = 3;
+}
+
+message ICNM {
+  uint32 id = 1;
+  string code = 2;
+  string name_ru = 3;
+  string name_kz = 4;
+  string name_en = 5;
+}
+
+message ListSettingsData {
+  int64 index = 1;
+  int64 action_id = 2;
+  string deadline = 3;
+  bool in_series = 4;
+  bool can_add_part = 5;
+  bool can_delegate = 6;
+  bool wait_delegate = 7;
+  bool can_decline = 8;
+  bool need_confirm = 9;
+  bool by_eds = 15;
+  bool by_company_eds = 17;
+  int32 files_access = 16;
+  int32 term_in_days = 10;
+  int32 term_in_hours = 11;
+  int32 term_in_minutes = 12;
+  repeated ParticipantsData emp_settings_list = 13;
+  uint32 id = 14;
+}
+
+message Error {
+  string message = 1;
+  string code = 2;
+  string details = 3;
+}
+
+message RouteCURequest{
+  bool notify_decision = 1;
+  bool start_process = 2;
+  repeated ListSettingsData list_settings_data = 3;
+  uint32 route_id = 4;
+  bool is_pattern = 5;
+  bool by_pattern = 6;
+  uint32 pattern_id = 7;
+  bool can_modify = 8;
+  bool restart = 9;
+  InvitationData invitation_data = 10;
+}
+
+message InvitationData {
+  string fio_and_company_name = 1;
+  string  document_name = 2;
+}
+
+message ListData{
+  int64 list_settings_id = 1;
+  string deadline = 2;
+  bool in_series = 3;
+  repeated ParticipantsData emp_settings_list = 4;
+}
+
+message StartProcessRequest{
+  uint64 router_id = 1;
+  bool restart = 2;
+}
+
+message CorrectStartProcessResponse{
+  ICNM status = 1;
+  uint32 route_id = 4;
+  string list_deadline = 5;
+  repeated CurrentParticipant current_participant = 3;
+  ICNM action = 6;
+}
+
+message StartProcessResponse{
+  oneof response {
+    Error error = 1;
+    CorrectStartProcessResponse data = 2;
+  }
+}
+
+message ActionResp{
+  int64 id = 1;
+  string name = 2;
+  string code = 3;
+}
+
+message AdjudicationData {
+  Context          context = 8;
+  FolderData       folder_data = 9;
+  ParticipantsData participant_data = 1;
+  repeated ICN     all_participants = 10;
+  int32            route_id = 2;
+  string           comment = 3;
+  bool             success = 4;
+  bool             by_eds = 11;
+  bool             need_alteration = 6;
+  bool             stop_with_decline = 7;
+}
+
+message Chunk {
+  bytes  bytes = 1;
+  bool   is_last = 2;
+  string file_name = 3;
+}
+
+message FileInfo {
+  int32  id = 1;
+  string title = 2;
+  string contentLength = 3;
+  string fileExst = 4;
+}
+
+message FolderData {
+  int32   folder_id = 1;
+  string  folder_name = 2;
+}
+
+message UploadData {
+  Context context = 1;
+  FolderData folder_data = 2;
+}
+
+message UploadRequest {
+  oneof request {
+    UploadData data = 1;
+    Chunk      chunk = 2;
+  }
+}
+
+message DownloadRequest {
+  Context context = 1;
+  int32 id = 2;
+}
+
+message GetPDFRequest {
+  Context context = 1;
+  int32 id = 2;
+  string number = 3;
+}
+
+
+message UploadedFiles {
+  repeated FileInfo files = 1;
+  uint32   folder_id = 2;
+}
+
+message GeneratedPdfData {
+  repeated FileInfo files = 1;
+  uint32   folder_id = 2;
+  bool     is_pdf_card = 3;
+  bool     is_pdf_agreement_list = 4;
+}
+
+message UploadResponse {
+  oneof response {
+    Error error = 1;
+    UploadedFiles data = 2;
+  }
+}
+
+message DelegationData{
+  Context        context = 6;
+  FolderData     folder_data = 7;
+  int32          route_id = 1;
+  int32          sso_emp_id = 2;
+  string         comment = 3;
+  repeated ICN   other_participants = 8;
+  repeated int32 participants = 4;
+  bool           full_delegation = 5;
+}
+
+message DelegationRequest {
+  oneof request {
+    DelegationData data = 1;
+    Chunk        chunk = 2;
+  }
+}
+
+message DelegateResponseData{
+  ICNM             action = 1;
+  int32            files_access = 2;
+  NotificationData notification_data = 3;
+}
+
+message DelegateResponse{
+  oneof response {
+    Error                error = 1;
+    DelegateResponseData data = 2;
+  }
+}
+
+message AdjudicationRequest {
+  oneof request {
+    AdjudicationData data = 1;
+    Chunk chunk = 2;
+  }
+}
+
+message CorrectAdjudicationResponse {
+  ICNM status = 3;
+  ICNM action = 7;
+  int32 stage_id = 1;
+  int32 cms_id = 2;
+  int32 files_access = 8;
+  string list_deadline = 4;
+  string end_date = 5;
+  repeated CurrentParticipant current_participant = 6;
+}
+
+message AdjudicationResponse {
+  oneof response {
+    Error error = 1;
+    CorrectAdjudicationResponse correctAdjudicationResponse = 2;
+  }
+}
+
+message ExpandParticipantsRequest {
+  uint32 route_id = 1;
+  repeated ParticipantForExpand participants = 2;
+}
+
+message ParticipantForExpand {
+  uint32 employee_sso_id = 1;
+  uint32 id = 2;
+  string code = 3;
+}
+
+message Status {
+  uint32 id = 1;
+  string code = 2;
+  string name = 3;
+}
+
+message StopProcessResponseData {
+  ICNM status = 1;
+}
+
+message StopProcessResponse{
+  oneof response {
+    Error                   error = 1;
+    StopProcessResponseData data = 2;
+  }
+}
+
+message NotificationData {
+  string event = 1;
+  string text = 2;
+}
+
+message CurrentParticipant {
+  NotificationData notification_data = 3;
+  repeated         ICN employees = 2;
+  string           code = 1;     // add - добавить; update - обновить имеющегося; del - удалить
+  int32            files_access = 4;
+}
+
+message AlertsRequest{
+  Context context = 3;
+  uint32  route_id = 1;
+  bool    is_owner = 2;
+}
+
+message Alert{
+  repeated File files = 1;
+  ICN      action_type = 2;
+  ICN      author = 3;
+  string   type_comment = 4;
+  string   date_comment = 5;
+  string   text_comment = 6;
+}
+
+message Alerts {
+  repeated Alert comments = 1;
+}
+
+message AlertsResponse{
+  oneof response {
+    Error    error = 1;
+    Alerts   data = 2;
+  }
+}
+
+message ParticipantRequest{
+  uint32 route_id = 1;
+  uint32 participant_id = 2;
+  uint32 current_employee_id = 3;
+}
+
+message CorrectStatusListResponse{
+  repeated Status status_list = 1;
+}
+
+message StatusListResponse{
+  oneof response {
+    Error error = 1;
+    CorrectStatusListResponse correctStatusListResponse = 2;
+  }
+}
+
+message CorrectActionListResponse{
+  repeated ActionResp list = 1;
+  uint32 total = 2;
+  string slug = 3;
+}
+
+message ActionListResponse{
+  oneof response {
+    Error error = 1;
+    CorrectActionListResponse correctActionListResponse = 2;
+  }
+}
+
+message ActionListRequest {
+  string name = 1;
+  string slug = 2;
+}
+
+message PatternDetailsRequest {
+  uint32 route_id = 1;
+}
+
+message List {
+  uint32 index = 1;
+  bool is_actual = 15;
+  ICN action_id = 2;
+  int32 term_in_days = 3;
+  int32 term_in_hours = 4;
+  int32 term_in_minutes = 5;
+  int32 files_access = 18;
+  bool in_series = 6;
+  repeated ParticipantsData participants = 7;
+  string deadline = 8;
+  uint32 id = 9;
+  uint32 list_id = 16;
+  bool can_add_part = 10;
+  bool can_delegate = 11;
+  bool wait_delegate = 12;
+  bool can_decline = 13;
+  bool need_confirm = 14;
+  bool by_eds = 17;
+  bool by_company_eds = 19;
+}
+
+message PatternDetailsResponseData {
+  bool notify = 1;
+  bool can_modify = 3;
+  repeated List lists = 2;
+}
+
+message PatternDetailsResponse{
+  oneof response {
+    Error error = 1;
+    PatternDetailsResponseData data = 2;
+  }
+}
+
+message CreateRouterRequest {
+  message list {
+    uint32 index = 1;
+    uint32 action_id = 2;
+    uint32 term_in_days = 3;
+    uint32 term_in_hours = 4;
+    bool in_series = 5;
+    bool can_add_participant = 6;
+    bool can_delegate = 7;
+    bool wait_for_delegates = 8;
+    bool can_decline = 9;
+    bool need_confirm = 10;
+    //    empl_settings employee_settings = 5;
+    //    act_settings action_settings = 6;
+    repeated employee employee_list = 11;
+  }
+  message employee{
+    uint32 index = 1;
+    uint32 sso_employee_id = 2;
+  }
+  message empl_settings {
+    bool can_add_participant = 1;
+    bool can_delegate = 2;
+    bool wait_for_delegates = 3;
+  }
+  message act_settings {
+    bool can_decline = 1;
+    bool need_confirm = 2;
+  }
+  repeated list lists = 1;
+  bool notify = 2;
+}
+
+message CorrectCreateRouterResponse {
+  uint32 route_id = 1;
+}
+
+message CreateRouterResponse{
+  oneof response {
+    Error error = 1;
+    CorrectCreateRouterResponse correctCreateRouterResponse = 2;
+  }
+}
+
+message DetailStateRequest {
+  uint32 sso_user_id = 1;
+  uint32 sso_employee_id = 2;
+  uint32 route_id = 3;
+  uint32 sso_company_id = 4;
+  bool   by_link = 5;
+}
+
+message CorrectDetailStateResponse {
+  DecisionBtn decision = 1;
+  bool delegate = 2;
+  bool full_delegate_only = 6;
+  bool add_participants = 3;
+  bool revision_participant = 4;
+  bool decline = 5;
+}
+
+message DetailStateResponse{
+  oneof response {
+    Error error = 1;
+    CorrectDetailStateResponse correctDetailStateResponse = 2;
+  }
+}
+
+message DecisionBtn {
+  bool access = 1;
+  bool resolution = 5;
+  bool register = 6;
+  bool by_eds = 2;
+  bool by_company_eds = 7;
+  string text = 3;
+  int32 list_id = 4;
+}
+
+message RevisionRequest {
+  oneof request {
+    RevisionData data = 1;
+    Chunk        chunk = 2;
+  }
+}
+
+message RevisionData {
+  repeated ICN other_participants = 6;
+  FolderData   folder_data = 1;
+  Context      context = 2;
+  string       comment = 3;
+  int32        route_id = 4;
+  int32        company_id = 5;
+}
+
+message RevisionResponseData {
+  ICNM status = 1;
+  ICNM action = 2;
+  CurrentParticipant current_participant = 3;
+}
+
+message OwnerReviewResponse {
+  oneof response {
+    Error                error = 1;
+    RevisionResponseData data = 2;
+  }
+}
+
+message StopProcessRequest {
+  uint32 route_id = 1;
+}
+
+message ApproveCompletionRequest {
+  uint32 route_id = 1;
+}
+
+message ParticipantsUpdateRequest {
+  uint32 id = 1;
+  uint32 update_initiator = 5;
+  repeated ICN to_add = 2;
+  repeated ICN to_del = 3;
+  InvitationData invitation_data = 4;
+}
+
+message ParticipantsUpdateResponse {
+  oneof response {
+    Error error = 1;
+    google.protobuf.Empty correctParticipantsUpdateResponse = 2;
+  }
+}
+
+message ActionDataResponse {
+  oneof response {
+    Error error = 1;
+    ICN correctActionDataResponse = 2;
+  }
+}
+
+message MakingResolutionRequest {
+  Context context = 6;
+  uint32 route_id = 1;
+  ParticipantsData participant_data = 2;
+  repeated ResolutionData data = 3;
+  string comment = 4;
+  int32 actually_executed = 5;
+}
+
+message ResolutionData {
+  uint32 id = 5;
+  uint32 route_id = 6;
+  ICN resolution_type = 1;
+  string comment = 2;
+  string deadline = 3;
+  repeated uint32 executors = 4;
+}
+
+message CorrectMakingResolutionResponse {
+  CorrectAdjudicationResponse adjudication_data = 3;
+  repeated ResolutionData data = 2;
+}
+
+message MakingResolutionResponse {
+  oneof response {
+    Error error = 1;
+    CorrectMakingResolutionResponse correctMakingResolutionResponse = 2;
+  }
+}
+
+message ConfStamp {
+  uint32 id = 1;
+  string code = 2;
+  string name = 3;
+  uint32 secrecy_level = 4;
+  bool allow_add = 5;
+  bool allow_download = 6;
+  string color = 7;
+}
+
+message IdType {
+  uint32 doc_id = 1;
+  string type = 2;
+}
+
+message RelationRequest {
+  repeated IdType data = 1;
+}
+
+message RelationData {
+  uint32 id = 1;
+  string type = 2;
+  string code = 8;
+  string name = 3;
+  string created_at = 4;
+  ICN status = 5;
+  ConfStamp conf = 6;
+  string author = 7;
+  string description = 9;
+  string number = 10;
+  bool   can_view = 11;
+}
+
+message CorrectRelationResponse {
+  repeated RelationData relations = 1;
+}
+
+message RelationResponse {
+  oneof response {
+    Error error = 1;
+    CorrectRelationResponse correctRelationResponse = 2;
+  }
+}
+
+message ResolutionListRequest {
+  int32 route_id = 1;
+}
+
+message ResolutionListData {
+  int32 id = 6;
+  string resolution_type = 1;
+  repeated string executors = 2;
+  string deadline = 3;
+  string author = 4;
+  string comment = 5;
+}
+
+message CorrectResolutionListResponse {
+  repeated ResolutionListData data = 1;
+}
+
+message ResolutionListResponse {
+  oneof response {
+    Error error = 1;
+    CorrectResolutionListResponse correctResolutionListResponse = 2;
+  }
+}
+
+message CorrectResolutionsAssignmentsResponse {
+  message item {
+    uint32 id = 3;
+    uint32 resolution_id = 1;
+    string task_number = 2;
+  }
+
+  repeated item data = 1;
+}
+
+message ResolutionsAssignmentsResponse {
+  oneof response {
+    Error error = 1;
+    CorrectResolutionsAssignmentsResponse correctResolutionsAssignmentsResponse = 2;
+  }
+}
+
+message Company {
+  uint32 id = 1;
+  string code = 2;
+  string name = 3;
+  string address = 4;
+}
+
+message Executor {
+  string   name = 1;
+  repeated string contacts = 2;
+}
+
+message Executors {
+  string title = 1;
+  repeated Executor executors = 2;
+}
+
+message PdfData {
+  message AttachmentData {
+    uint32 id = 1;
+    string format = 2;
+    bool   last_version_by_user = 3;
+  }
+
+  repeated  List  router_data = 7;
+  Company        company_id = 8;
+  Executors      executors = 38;
+  AttachmentData attachment = 46;
+  ICN       currency_id = 9;
+  ICN       doc_category_id = 10;
+  ICN       type_treatment = 11;
+  ICN       character_treatment = 12;
+  ICN       social_status = 13;
+  ICN       sender_receiver = 14;
+  ICN       approval_authority_id = 15;
+  ICN       depart_id = 16;
+  ICN       new_depart_id = 72;
+  ICN       update_period_id = 17;
+  ICN       conf_stamp_id = 18;
+  ICN       conf_basis_id = 19;
+  ICN       group_id = 20;
+  ICN       subgroup_id = 21;
+  ICN       case_id = 22;
+  ICN       employee_id = 66;
+  ICN       employee_category_id = 47;
+  ICN       business_trip_type_id = 48;
+  ICN       signatory_id = 49;
+  ICN       signatory_position = 50;
+  ICN       position_id = 51;
+  ICN       new_position_id = 71;
+  ICN       dismissal_reason_id = 52;
+  ICN       vacation_group_id = 53;
+  ICN       vacation_type_id = 54;
+  ICN       transfer_type_id = 55;
+  ICN       creator = 33;
+  ICN       receiver = 78;
+  ICN       counterparty_id = 79;
+  uint32    converted_attachment = 77;
+  uint32    creator_id = 23;
+  uint32    doc_id = 40;
+  uint32    probation_period = 74;
+  int32     days_count = 67;
+  float     amount = 24;
+  float     vat_amount = 25;
+  string    register_date = 80;
+  string    trip_purpose = 56;
+  string    location = 57;
+  string    employment_contract_number = 58;
+  string    last_day_date = 59;
+  string    dismissal_date = 60;
+  string    vacation_start_date = 61;
+  string    employment_start_date = 62;
+  string    new_work_place = 63;
+  string    type = 41;
+  string    code = 64;
+  string    receiving_date = 1;
+  string    confirm_date = 2;
+  string    deadline = 3;
+  string    created_at = 4;
+  string    date_start = 5;
+  string    date_end = 6;
+  string    subject_contract = 26;
+  string    rate = 27;
+  string    author_addressee = 28;
+  string    name = 29;
+  string    file_name = 39;
+  string    description = 30;
+  string    description_kaz = 65;
+  string    number = 31;
+  string    global_number = 44;
+  string    outgoing_number = 32;
+  string    receiver_number = 75;
+  string    receiver_name = 76;
+  string    storage_location = 34;
+  string    type_name = 35;
+  string    group_code = 36;
+  string    assigned = 37;
+  string    return_to_work_date = 68;
+  string    type_name_kz = 70;
+  string    transfer_date = 73;
+  bool      with_approval_sheet = 42;
+  bool      generate_card = 43;
+  bool      convert_attachments = 45;
+  bool      is_staff = 69;
+}
+
+message PdfGenerateRequest {
+  Context    context = 1;
+  FolderData folder_data = 2;
+  PdfData    data = 3;
+}
+
+message CedDataForDownload {
+  Context    context = 1;
+  PdfData    data = 2;
+}
+
+message FileCreate {
+  string name = 1;
+  string file_name = 2;
+  string hash_name = 3;
+  string size = 4;
+  bool   is_pdf_card = 5;
+  bool   is_pdf_agreement_list = 6;
+}
+
+message GeneratePDFResponse {
+  oneof response {
+    Error error = 1;
+    FileCreate correctGeneratePDFResponse = 2;
+  }
+}
+
+message PaymentListItem {
+  uint32    id = 1;
+  ICN       workshop = 2;
+  int32     amount = 3;
+  string    number = 4;
+  string    register_date = 5;
+  string    name = 6;
+  string    counterparty = 7;
+  string    description = 8;
+  string    company_name = 9;
+  string    currency_name = 10;
+  string    payment_term = 11;
+  string    receiver = 12;
+  string    author = 13;
+  string    budget_item_subgroup = 14;
+  string    is_budget_covers = 15;
+  string    comment = 16;
+  string    type_of_purchase = 17;
+  string    group = 18;
+  string    subgroup = 19;
+  string    frc = 20;
+  string    status_name = 21;
+  string    fin_transaction_type = 22;
+}
+
+message PaymentListExcelRequest {
+  Context    context = 1;
+  repeated PaymentListItem payment_list = 2;
+}
+
+message ExcelFileByDocResponse {
+  bytes file = 1;
+  string filename = 2;
+}
+
+message EDSCheckRequest {
+  uint32 route_id = 1;
+}
+
+message CorrectEDSCheckResponse {
+  bool EDS = 1;
+}
+
+message EDSCheckResponse {
+  oneof response {
+    Error error = 1;
+    CorrectEDSCheckResponse correctEDSCheckResponse = 2;
+  }
+}
+
+message ReportTaskByTypeData {
+  string    company = 1;
+  string    group = 2;
+  string    type = 3;
+  string    number = 4;
+  string    name = 5;
+  string    author = 6;
+  string    status = 7;
+  string    date_start = 8;
+  string    conf_stamp = 9;
+  uint32    task_id = 10;
+  string    invitation = 11;
+}
+
+message ListReportTaskByTypeData{
+  repeated ReportTaskByTypeData report_task_by_type_data = 1;
+  Context          context = 2;// file_generator
+}
+
+message ReportTaskByDeptData {
+  string    company = 1;
+  string    group = 2;
+  string    type = 3;
+  string    number = 4;
+  string    name = 5;
+  string    author = 6;
+  string    status = 7;
+  string    date_start = 8;
+  string    conf_stamp = 9;
+  uint32    task_id = 10;
+  string    dept = 11;
+  string    participant = 12;
+  string    invitation = 13;
+}
+
+message ListReportTaskByDeptData{
+  repeated ReportTaskByDeptData report_task_by_dept_data = 1;
+  Context          context = 2;// file_generator
+}
+
+message ReportDocByParticipantData {
+  string    company = 1;
+  string    doc_category = 2;
+  string    number = 3;
+  string    name = 4;
+  string    author = 5;
+  string    status = 6;
+  string    date_start = 7;
+  string    conf_stamp = 8;
+  string    invitation = 9;
+  uint32    doc_id = 10;
+}
+
+message ListReportDocByParticipantData {
+  repeated ReportDocByParticipantData report_doc_by_participant_data = 1;
+  Context          context = 2;
+}
+
+message ListReportTaskByParticipantData{
+  repeated ReportTaskByDeptData report_task_by_participant_data = 1;
+  Context          context = 2;// file_generator
+}
+message Lang {
+  string code = 1;
+  string prefix = 2;
+}
+
+message Employee {
+  int32 sso_id = 1;
+  string full_name = 2;
+  string short_name = 3;
+  ConfStamp conf_stamp = 4;
+  UserCompany company = 5;
+}
+
+message Depart {
+  int32 sso_id = 1;
+  string name = 2;
+}
+
+message UserCompany {
+  int32 sso_id = 1;
+  string name = 2;
+  Depart depart = 3;
+}
+
+message User {
+  int32 sso_id = 1;
+  string username = 2;
+  string iin = 3;
+  repeated Employee employee = 4;
+}
+
+message Context {
+  User user = 1;
+  Lang lang = 2;
+  User substitute_user = 3;
+  int32 company_id = 4;
+  string token = 5;
+  string module = 6;
+}
+
+message FilesDeleteRequest {
+  Context context = 1;
+  repeated int32 files = 2;
+}
+
+message FilesDeleteResponse {
+  message files {
+    repeated int32 failed = 1;
+  }
+
+  oneof response {
+    Error error = 1;
+    files correctFilesDeleteResponse = 2;
+  }
+}
+
+message RouteFilesRequest {
+  Context context = 1;
+  int32   route_id = 2;
+}
+
+message ReportDocByTypeData {
+  string    company = 1;
+  string    group = 2;
+  string    type = 3;
+  string    number = 4;
+  string    name = 5;
+  string    author = 6;
+  string    status = 7;
+  string    date_start = 8;
+  string    conf_stamp = 9;
+  string    invitation = 10;
+  uint32    doc_id = 11;
+}
+
+message ListReportDocByTypeData{
+  repeated ReportDocByTypeData report_doc_by_type_data = 1;
+  Context          context = 2;// file_generator
+}
+
+message ReportDocByDeptData {
+  string    company = 1;
+  string    doc_category = 2;
+  string    number = 3;
+  string    name = 4;
+  string    author = 5;
+  string    status = 6;
+  string    date_start = 7;
+  string    conf_stamp = 8;
+  uint32    doc_id = 9;
+  string    dept = 10;
+  string    invitation = 11;
+}
+
+message ListReportDocByDeptData{
+  repeated ReportDocByDeptData report_doc_by_dept_data = 1;
+  Context          context = 2;// file_generator
+}
+
+message ReportDocByConfData {
+  string    company = 1;
+  string    doc_category = 2;
+  string    number = 3;
+  string    name = 4;
+  string    author = 5;
+  string    status = 6;
+  string    date_start = 7;
+  string    conf_stamp = 8;
+  string    invitation = 9;
+  uint32    doc_id = 10;
+}
+
+message ListReportDocByConfData{
+  repeated ReportDocByConfData report_doc_by_conf_data = 1;
+  Context          context = 2;// file_generator
+}
+
+message ReportDocByCategoryData {
+  string    company = 1;
+  string    number = 2;
+  string    doc_category = 3;
+  string    name = 4;
+  string    author = 5;
+  string    status = 6;
+  string    date_start = 7;
+  string    conf_stamp = 8;
+  string    invitation = 9;
+  uint32    doc_id = 10;
+}
+
+message ListReportDocByCategoryData{
+  repeated ReportDocByCategoryData report_doc_by_category_data = 1;
+  Context      context = 2;// file_generator
+}
+
+message ReportDocByPaymentData {
+  uint32    doc_id = 1;
+  string    number = 2;
+  string    created_at = 3;
+  string    name = 4;
+  string    counter_party_name = 5;
+  string    description = 6;
+  string    company = 7;
+  uint32    amount = 8;
+  string    currency_name = 9;
+  string    payment_term = 10;
+  string    receiver_name = 11;
+  string    author = 12;
+  string    budget_item_subgroup_name = 13;
+  string    is_budget_covers = 14;
+  string    comment = 15;
+  string    transaction_type = 16;
+  string    contract_group = 17;
+  string    contract_subgroup = 18;
+  string    workshop_name = 19;
+  string    frc_name = 20;
+  string    status = 21;
+  string    conf_stamp = 22;
+  string    invitation = 23;
+}
+
+message ListReportDocByPaymentData{
+  repeated ReportDocByPaymentData report_doc_by_payment_data = 1;
+  Context          context = 2;// file_generator
+}
+
+message CmsDataUpdateRequest {
+  Context context = 1;
+  CmsDataUpdate data = 2;
+}
+
+message CmsDataUpdate {
+  int32  cms_id = 1;
+  string path = 2;
+  string hash = 3;
+}
+
+message SignersDataResponse {
+  message data{
+    uint32 id = 1;
+    string type = 2;
+    string name = 3;
+    string signed_at = 4;
+  }
+
+  repeated data Data = 1;
+}
+
+message StageParticipantsRequest {
+  Context context = 1;
+  uint32  route_id = 2;
+}
+
+message StageParticipantsResponse {
+  repeated uint32 data = 1;
+}
+
+message GetTaskNameRequest {
+  uint32 id = 1;
+}
+
+message GetTaskNameResponse {
+  string name = 1;
+}
+
+message ResponsibleData {
+  int32                     route_id = 1;
+  repeated ParticipantsData participants = 2;
+}
+
+message ParticipantsFromDocCardRequest {
+  int32                     route_id = 1;
+  repeated List             route_data = 2;
+}
+
+message ParticipantsFromDocCardResponse {
+  repeated List route_data = 1;
+}
+
+message SimpleRouteRequest {
+  Context context = 1;
+  DataForSimpleRoute data = 2;
+}
+
+message DataForSimpleRoute {
+  string   code = 1;
+  int32    route_id = 2;
+  int32    company_receiver = 3;
+  repeated ICN receivers = 4;
+  ICN      sender = 5;
+  bool     bilateral_signing = 6;
+}
+
+message SignByEgovRequest {
+  int32 doc_id = 1;
+  int32 user_sso_id = 2;
+  string type = 3;
+  string code = 4;
+  string slug = 5;
+  string cmsData = 6;
+  string token = 7;
+  string lang = 8;
+  string is_simple_start = 9;
+}
+
+message RouteCEDData {
+  int32 route_id = 1;
+  int32 company_sso_id = 2;
+  bool  is_main = 3;
+}
+
+message RouteCEDDataRequest {
+  Context context = 1;
+  repeated RouteCEDData data = 2;
+}
+
+message HasRegisterStepCheckResponse {
+  bool check = 1;
+}
+
+message DocAccessCheckByFileIDRequest {
+  int32 user_id = 1;
+  int32 file_id = 2;
+}
+
+message DocAccessCheckByFileIDResponse {
+  bool access = 1;
+}
+
+message ActionIdByCompanyParticipantRequest {
+  Context context = 1;
+  int32   route_id = 2;
+  int32   company_sso_id = 3;
+}
+
+message ActionIdByCompanyParticipantResponse {
+  ICN action = 1;
+}
+
+service Router {
+  rpc HasRegisterStepCheck(RouteFilesRequest) returns (HasRegisterStepCheckResponse);
+  rpc RouteCEDData(RouteCEDDataRequest) returns (PatternDetailsResponseData);
+  rpc GetResultInfo(ResultRequest) returns (ResultResponse);
+  rpc GetRouterDetails(RouterDetailsRequest) returns (RouterDetailsResponse);
+  rpc RouteCreateUpdate(RouteCURequest) returns (StartProcessResponse);
+  rpc UpdateListSettings(RouteCURequest) returns (StartProcessResponse);
+  rpc GetAlerts(AlertsRequest) returns (AlertsResponse);
+  rpc AddParticipant(ParticipantRequest) returns (DelegateResponse);
+  rpc ExpandParticipants(ExpandParticipantsRequest) returns (DelegateResponse);
+  rpc ParticipantsUpdate(ParticipantsUpdateRequest) returns (ParticipantsUpdateResponse);
+  rpc StartProcess(StartProcessRequest) returns (StartProcessResponse);
+  rpc StopProcess(StopProcessRequest) returns (StopProcessResponse);
+  rpc GetAction(ActionListRequest) returns (ActionListResponse);
+  rpc Delegate(stream DelegationRequest) returns (DelegateResponse);
+  rpc Adjudication(stream AdjudicationRequest) returns (AdjudicationResponse);
+  rpc StartAndSign(stream AdjudicationRequest) returns (AdjudicationResponse);
+  rpc GetStatusList(google.protobuf.Empty) returns (StatusListResponse);
+  rpc GetPatternDetails(PatternDetailsRequest) returns (PatternDetailsResponse);
+  rpc DeleteRouterPattern(AlertsRequest) returns(google.protobuf.Empty);
+  rpc StateData(DetailStateRequest) returns(DetailStateResponse);
+  rpc OwnerReview(stream RevisionRequest) returns(OwnerReviewResponse);
+  rpc ApproveCompletion(ApproveCompletionRequest) returns(AdjudicationResponse);
+  rpc GetActionData(AlertsRequest) returns (ActionDataResponse);
+  rpc MakingResolution(MakingResolutionRequest) returns (MakingResolutionResponse);
+  rpc ResolutionList(ResolutionListRequest) returns(ResolutionListResponse);
+  rpc AssignmentsRouteCreate(RouteCURequest) returns (StartProcessResponse);
+  rpc EDSCheck (EDSCheckRequest) returns (EDSCheckResponse);
+  rpc RouteFiles (RouteFilesRequest) returns (UploadedFiles);
+  rpc GetAllCmsId (CmsIdArrRequest) returns (CmsIdArr);
+  rpc CmsDataUpdate (CmsDataUpdateRequest) returns (google.protobuf.Empty);
+  rpc SignersData (RouteCEDDataRequest) returns (SignersDataResponse);
+  rpc StageParticipants (StageParticipantsRequest) returns (StageParticipantsResponse);
+  rpc SimpleRouteCreate (SimpleRouteRequest) returns (CorrectStartProcessResponse);
+  rpc GetActionIdByCompanyParticipant (ActionIdByCompanyParticipantRequest) returns (ActionIdByCompanyParticipantResponse);
+}
+
+service Doc {
+  rpc RelatedDocData(RelationRequest) returns (RelationResponse);
+  rpc SignByEgov(SignByEgovRequest) returns (google.protobuf.Empty);
+  rpc GetParticipantsData(ResponsibleData) returns (ResponsibleData);
+  rpc GetParticipantsFromDocCard(ParticipantsFromDocCardRequest) returns (ParticipantsFromDocCardResponse);
+  rpc NSIDocTypeSync(NSISyncRequest) returns (google.protobuf.Empty);
+  rpc NSICharactersSync(NSISyncRequest) returns (google.protobuf.Empty);
+  rpc NSIORGSync (stream NSIORGSyncRequest) returns (NSIORGSyncResponse);
+  rpc DocAccessCheckByFileID(DocAccessCheckByFileIDRequest) returns (DocAccessCheckByFileIDResponse);
+}
+
+service Task {
+  rpc RelatedTaskData(RelationRequest) returns (RelationResponse);
+  rpc ResolutionsAssignments(IdType) returns (ResolutionsAssignmentsResponse);
+  rpc GetTaskNameByID (GetTaskNameRequest) returns (GetTaskNameResponse);
+}
+
+service Integrator {
+}
+
+message EmploymentContractData {
+  string name = 1;
+}
+
+message EmploymentContractRequest {
+  EmploymentContractData employment_contract = 1;
+  Context      context = 2;
+}
+
+message EmploymentContractResponse {
+  oneof response {
+    Error error = 1;
+    string info = 2;
+  }
+}
+
+message SignedXmlData {
+  string       xml = 1;
+  string       operation = 2;
+  int32        doc_id = 3;
+  string       type = 4;
+  string       code = 5;
+}
+
+message SignedXmlAndContextRequest {
+  SignedXmlData signed_xml_data = 1;
+  Context      context = 2;
+}
+
+message EnbekMessage {
+  bool response_success = 1;
+  string status = 2;
+  string message = 3;
+  string date = 4;
+}
+
+message EnbekMessageResponse {
+  bool response_exists = 1;
+}
+
+message EnbekMessageListResponse {
+  repeated EnbekMessage list = 1;
+  int32                 total = 2;
+}
+
+message EnbekLogsResponse {
+  bool has_logs = 1;
+  bool success_log = 2;
+}
+
+message TESTRequest {
+  int32 file_id = 1;
+}
+
+message GetNSIResponse {
+  string answer = 1;
+}
+
+message NSISyncRequest {
+  repeated NSIData data = 1;
+}
+
+message NSIData {
+  int32  id = 1;
+  string name_ru = 2;
+  string name_kz = 3;
+  string code = 4;
+  string element_guid = 5;
+  bool   is_marked_to_delete = 6;
+}
+
+message NSIORGSyncRequest {
+  NSIORGData data = 1;
+}
+
+message NSIORGData {
+  int32  id = 1;
+  uint64 member = 2;
+  string name_ru = 3;
+  string name_kz = 4;
+  string bin = 5;
+  string element_guid = 6;
+  bool   is_marked_to_delete = 7;
+}
+
+message NSIORGSyncResponse {
+  uint32 success = 1;
+  uint32 failed = 2;
+}
+
+message CompanyDataRequest {
+  string bin = 1;
+}
+
+message CompanyDataResponse {
+  string data = 1;
+}
+
+service GatewayIntegration {
+  rpc EmploymentContract(EmploymentContractRequest) returns (EmploymentContractResponse);
+  rpc SendSoapRequestByOperation(SignedXmlAndContextRequest) returns (EnbekMessageResponse);
+  rpc GetEnbekResponse(ITC) returns (EnbekMessageListResponse);
+  rpc GetEnbekLogs(ITC) returns (EnbekLogsResponse);
+  rpc GetNSI(TESTRequest) returns (GetNSIResponse);
+  rpc GetCompanyData(CompanyDataRequest) returns (CompanyDataResponse);
+}
+
+message AccessData {
+  repeated ICN participants = 1;
+  int32        files_access = 2;
+}
+
+message FilesAccessRequest {
+  Context             context = 1;
+  repeated int32      files = 2;
+  repeated AccessData data = 3;
+}
+
+message FilesAccessResponse {
+  oneof response {
+    Error error = 1;
+    google.protobuf.Empty data = 2;
+  }
+}
+
+message CopyFileData {
+  int32   id = 1;
+  string  name = 2;
+}
+
+message CopyFilesRequest {
+  Context               context = 1;
+  FolderData            folder_data = 2;
+  repeated CopyFileData data = 3;
+}
+
+message DeleteFolderRequest {
+  Context context = 1;
+  int32 folder_id = 2;
+}
+
+message CreateFolderRequest {
+  Context context = 1;
+  string folder_name = 2;
+}
+
+message CreateFolderResponse {
+  int32 folder_id = 1;
+}
+
+message CreateArchiveRequest {
+  Context context = 1;
+  repeated int32 cms_arr = 2;
+}
+
+service FileStorage {
+  rpc GeneratePDF(PdfGenerateRequest) returns (GeneratedPdfData);
+  rpc GenerateTaskReportByType(ListReportTaskByTypeData) returns (FileInfo);
+  rpc GenerateTaskReportByDept(ListReportTaskByDeptData) returns (FileInfo);
+  rpc GenerateTaskReportByParticipant(ListReportTaskByParticipantData) returns (FileInfo);
+  rpc FilesDelete(FilesDeleteRequest) returns (FilesDeleteResponse);
+  rpc FilesAccess(FilesAccessRequest) returns (FilesAccessResponse);
+  rpc UploadFiles(stream UploadRequest) returns (UploadResponse);
+  rpc DownloadFile(DownloadRequest) returns (stream Chunk);
+  rpc PrepareCEDForDownload(CedDataForDownload) returns (stream Chunk);
+  rpc GetPdfFile(GetPDFRequest) returns (stream Chunk);
+  rpc CopyFiles(CopyFilesRequest) returns (UploadedFiles);
+  rpc GenerateDocReportByType(ListReportDocByTypeData) returns (FileInfo);
+  rpc GenerateDocReportByDept(ListReportDocByDeptData) returns (FileInfo);
+  rpc GenerateDocReportByConf(ListReportDocByConfData) returns (FileInfo);
+  rpc GenerateDocReportByCategory(ListReportDocByCategoryData) returns (FileInfo);
+  rpc GenerateDocReportByParticipant(ListReportDocByParticipantData) returns (FileInfo);
+  rpc GenerateDocReportByPayment(ListReportDocByPaymentData) returns (FileInfo);
+  rpc CreateFolder(CreateFolderRequest) returns (CreateFolderResponse);
+  rpc DeleteFolder(DeleteFolderRequest) returns (google.protobuf.Empty);
+  rpc CreateArchive(CreateArchiveRequest) returns (stream Chunk);
+  rpc GeneratePaymentListExcel(PaymentListExcelRequest) returns (ExcelFileByDocResponse);
+}

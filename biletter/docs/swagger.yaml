@@ -1,0 +1,54 @@
+basePath: /
+definitions:
+  entity.EventForList:
+    properties:
+      id:
+        type: integer
+      title:
+        type: string
+    type: object
+host: 0.0.0.0:8081
+info:
+  contact: {}
+  description: API Server Biletter
+  title: Biletter API
+  version: "1.0"
+paths:
+  /api/events:
+    get:
+      consumes:
+      - application/json
+      description: Получение списка ивентов
+      parameters:
+      - description: Authorization
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: '...'
+          schema:
+            items:
+              $ref: '#/definitions/entity.EventForList'
+            type: array
+        "400":
+          description: Bad Request
+          schema: {}
+        "404":
+          description: Not Found
+          schema: {}
+        "500":
+          description: Internal Server Error
+          schema: {}
+        default:
+          description: ""
+          schema: {}
+      security:
+      - ApiKeyAuth: []
+      summary: Получение списка ивентов
+      tags:
+      - Event
+swagger: "2.0"
